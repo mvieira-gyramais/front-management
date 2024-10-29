@@ -4,14 +4,15 @@ import axios from 'axios';
 
 const fetchUsers = async () => {
   try {
-    const response = await axios.get('http://localhost:8000/aluno/');
+    const response = await axios.get('http://localhost:8000/aluno');
+    console.log('Dados recebidos:', response.data);
     return response.data;
-  }
-  catch(error){
-    console.log(error);
-    return[];
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    return [];
   }
 };
+
 
 export default function HomePage() {
   const [selectedList, setSelectedList] = useState(null);
@@ -27,8 +28,11 @@ export default function HomePage() {
   });
   
   const handleSelectList = async (listName) => {
-    if (listName === 'Consulta'){
+    console.log('Lista selecionada:', listName);
+    if (listName === 'Consulta') {
+      console.log('Iniciando consulta de usuários...');
       const data = await fetchUsers();
+      console.log('Dados definidos no estado:', data);
       setUsers(data);
     }
     setSelectedList(listName);
@@ -206,19 +210,27 @@ export default function HomePage() {
                 </TableRow>
               </TableHead>
               <TableBody>
+                {console.log('Estado users atual:', users)}
                 {Array.isArray(users) && users.length > 0 ? (
-                  users.map((user) => (
-                    <TableRow>
-                      <TableCell>{user.name}</TableCell>
-                      <TableCell>{user.email}</TableCell>
-                      <TableCell>{user.cpf}</TableCell>
-                      <TableCell>{user.telefone}</TableCell>
-                      <TableCell>{user.cursoId}</TableCell>
-                    </TableRow>
-                  ))
+                  users.map((user) => {
+                    console.log(`Dados do usuário:`, user);
+                    return(
+                      <TableRow key={user.id}>
+                        <TableCell>{user.aluno?.nome || 'N/A'}</TableCell>
+                        <TableCell>{user.aluno?.email || 'N/A'}</TableCell>
+                        <TableCell>{user.aluno?.cpf || 'N/A'}</TableCell>
+                        <TableCell>{user.aluno?.telefone || 'N/A'}</TableCell>
+                        <TableCell>{user.cursoId || 'N/A'}</TableCell>
+                      </TableRow>
+                    );
+                  })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3}>Nenhum usuário encontrado</TableCell>
+                    <TableCell colSpan={5}>
+                      {Array.isArray(users) 
+                        ? 'Nenhum usuário encontrado' 
+                        : 'Erro: dados em formato inválido'}
+                    </TableCell>
                   </TableRow>
                 )}
               </TableBody>
